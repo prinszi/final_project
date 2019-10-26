@@ -67,12 +67,12 @@ d3.json(url).then((data) => {
 
   // loop through the json
   data.forEach(function(response){
-    const lat = response[2];
-    const long = response[3];
+    const lat = response[1];
+    const long = response[2];
     const name = response[0];
-    const stars = response[9];
-    const avg_violations = response[11];
-    const times_inspected = response[12];
+    const stars = response[4];
+    const avg_violations = response[6];
+    const times_inspected = response[7];
 
     if (stars === 5){
       five_star ++;
