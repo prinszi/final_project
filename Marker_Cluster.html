@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="description" content="17.2.3">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marker Clusters</title>
+
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+      integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+      crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+      integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+      crossorigin=""></script>
+
+    <!-- Chartist -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    <script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+
+    <!--D3 cdn-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.12.0/d3.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <!-- Marker Cluster JS & CSS -->
+    <script type="text/javascript" src="https://unpkg.com/leaflet.markercluster@1.0.3/dist/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.0.3/dist/MarkerCluster.css">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.0.3/dist/MarkerCluster.Default.css">
+
+    <!-- Our CSS -->
+    <link rel="stylesheet" type="text/css" href="static/css/style.css">
+
+  </head>
+  <body>
+     
+        <h2 id="header">
+          <strong>City of Chicago Food Inspections and Google User Reviews</strong>
+          <small class="text-muted">Jan 2019 - Present</small>
+          <p><small> Evan Stroh, Prinssi Schultz, and Stephanie Burr </small></p>
+        </h2>
+    
+
+    <p>The data presented below was collected from the City of Chicago Data portal from 
+      <a href=https://data.cityofchicago.org/Health-Human-Services/Food-Inspections/4ijn-s7e5 target="_blank">the following location</a>.
+      This information is derived from inspections of restaurants and other food establishments in Chicago from January 1, 2019 
+      to the present. Inspections are performed by staff from the Chicago Department of Public Health’s Food Protection Program 
+      using a standardized procedure. The results of the inspection are inputted into a database, 
+      then reviewed and approved by a State of Illinois Licensed Environmental Health Practitioner (LEHP). </p>
+    
+    <p>This data is paired with Google User Reviews from Google Places. To learn more about data available through Google Places, 
+      visit <a href=https://developers.google.com/places/web-service/intro target="_blank">the following location</a>.
+    </p>
+
+  </body>
+
+  <body>
+	
+    <div class="container">
+			<div class="row m-b-1"> <!-- row map -->
+				<div class="col-xs-12">
+					<div class="card shadow">
+            <h4 class="card-header">Map of Restaurant Violations and Google Reviews </h4>
+            <p>See where to dine, and where to avoid!</p>
+						<div class="card-block">
+              <div id="map"></div>
+						</div>
+					</div>
+				</div>
+			</div> <!-- row map -->
+
+			<div class="row m-b-1">  <!-- row plot1 -->
+				<div class="col-lg-6">
+					<div class="card shadow">
+            <h4 class="card-header">Distribution of Star Ratings</h4>
+            <p>The 4-5 star range was sub-divided due to the ovewhelming number of 4 star reviews.</p>
+						<div class="card-block">
+              <div class="ct-chart ct-golden-section" id="bar"></div>
+						</div>
+					</div>
+				</div> 
+      </div> <!-- row plot1 -->
+
+        <div class="row m-b-1"> <!-- row plot2 -->
+          <div class="col-lg-6">
+            <div class="card shadow">
+              <h4 class="card-header">The Donut of Violations!</h4>
+              <p>See the number of restaurants with a scary number of violations!</p>
+              <div class="card-block">
+                <div class="ct-chart ct-golden-section" id="pie"></div>
+              </div>
+            </div>
+          </div> 
+        </div> <!-- row plot2 -->
+
+        <div class="row m-b-1"> <!-- row plot3 -->
+          <div class="col-lg-6">
+            <div class="card shadow">
+              <h4 class="card-header">Plotting Restaurant Ratings vs. Violations</h4>
+              <p>It doesn't matter if you're dining in the greasiest spoon, or the finest chateau, health code violations are everywhere!</p>
+              <div class="card-block">
+                <div class="ct-chart ct-golden-section" id="scatter"></div>
+              </div>
+            </div>
+          </div> 
+        </div> <!-- row plot3 -->
+    
+    <!-- Scripts for CONFIG.JS & LOGIC.JS -->
+    <script type="text/javascript" src="static/js/config.js"></script>
+    <script type="text/javascript" src="static/js/logic.js"></script>
+    
+  </div> <!-- container -->
+	</body>
+</html>
+
