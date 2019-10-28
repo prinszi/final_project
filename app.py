@@ -38,7 +38,7 @@ def jsondata():
 
     # calls to functions to create the dataframes
     google_reviews_df = pd.read_csv("google_reviews.csv")
-    chi_inspections_df = pd.read_csv("violations_by_license_2019.csv")
+    chi_inspections_df = pd.read_csv("model_results_slim.csv")
 
     # create a database connection
     conn = create_connection(database)
@@ -63,7 +63,10 @@ def jsondata():
                                     latitude real,
                                     longitude real,
                                     avg_violations real,
-                                    times_inspected integer
+                                    times_inspected integer,
+                                    binary_results integer,
+                                    model_prediction real,
+                                    logistic_model_prediction real
                                 );"""
 
         cur.execute(inspections_table)
@@ -100,7 +103,7 @@ def jsondata():
 
         # merge tables
         inner_join = """select aka_name, latitude, longitude, license_,
-                    reviews.Average_of_Ratings, reviews.Data_license, avg_violations, times_inspected
+                    reviews.Average_of_Ratings, reviews.Data_license, avg_violations, times_inspected, binary_results,model_prediction,logistic_model_prediction
                     from inspections
                     join reviews on Data_license = license_;
                     """

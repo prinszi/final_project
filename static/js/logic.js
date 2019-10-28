@@ -44,7 +44,8 @@ d3.json(url).then((data) => {
   const lowViolationsLayer = L.layerGroup();
   const veryLowViolationsLayer = L.layerGroup();
   const noViolationsLayer = L.layerGroup();
-
+  const randomForestLayer = L.layerGroup();
+  const logisticRegressionLayer = L.layerGroup();
 
   var fifteen_violations = 0;
   var ten_violations = 0;
@@ -73,6 +74,9 @@ d3.json(url).then((data) => {
     const stars = response[4];
     const avg_violations = response[6];
     const times_inspected = response[7];
+    const result = response[8];
+    const rf_model_prediction = response[9];
+    const logistic_model_prediction = response[10];
 
     if (stars === 5){
       five_star ++;
@@ -100,10 +104,44 @@ d3.json(url).then((data) => {
           color: color,
           fillColor: color,
           radius: 5
-        }).addTo(layer).bindPopup(`<h2>Name: ${name}</h2><hr/><h2>Rating: ${stars}</br>Avg Violations: ${avg_violations}</br>Times Inspected: ${times_inspected}</h2>`);
+        }).addTo(layer).bindPopup(`<h2>Name: ${name}</h2><hr/><h2>Rating: ${stars}</br>Avg Violations: ${avg_violations}</br>Times Inspected: ${times_inspected}</h2><hr/>` );
       }
     }
 
+    function createMarker_ml(lat,long,name,stars,avg_violations,color,layer,rf_model_prediction,logistic_model_prediction,result) {
+      if (lat){
+        L.circle([lat, long],{
+          fillOpacity: 1,
+          color: color,
+          fillColor: color,
+          radius: 5
+        }).addTo(layer).bindPopup(`<h2>Name: ${name}</h2><hr/><h2>Rating: ${stars}</br>Avg Violations: ${avg_violations}</br>Times Inspected: ${times_inspected}</h2><hr/>
+        </br>Inspection Result: ${result}</br>Random Forest prediction: ${rf_model_prediction}</br>Logistic regression prediction: ${logistic_model_prediction}` );
+      }
+    }
+
+// there will be different samples that were used in the train/test groups for each prediction model
+    // random forest classifier marker creation
+    if (rf_model_prediction > 0 && rf_model_prediction == result){
+      color = '#00ff00';
+      createMarker_ml(lat,long,name,stars,avg_violations,color,randomForestLayer,rf_model_prediction,logistic_model_prediction,result);
+    }
+    else if (rf_model_prediction > 0 && rf_model_prediction != result){
+      ten_violations ++;
+      color = '#ff0000';
+      createMarker_ml(lat,long,name,stars,avg_violations,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
+    }
+
+    // the logistic model marker creation
+    if (logistic_model_prediction > 0 && logistic_model_prediction == result){
+      color = '#00ff00';
+      createMarker_ml(lat,long,name,stars,avg_violations,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
+    }
+    else if (logistic_model_prediction > 0 && logistic_model_prediction != result){
+      color = '#ff0000';
+      createMarker_ml(lat,long,name,stars,avg_violations,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
+    }
+    
     let color = '#73FA0A';
 
     if (avg_violations > 15){
@@ -165,7 +203,9 @@ d3.json(url).then((data) => {
     Avg: avgViolationsLayer,
     Low: lowViolationsLayer,
     Minimal: veryLowViolationsLayer,
-    None: noViolationsLayer
+    None: noViolationsLayer,
+    Random_forest: randomForestLayer,
+    Logistic_regresssion: logisticRegressionLayer
   };
 
   const myMap = L.map("map", {
