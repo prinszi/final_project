@@ -58,12 +58,24 @@ def jsondata():
         # need to make the columns of the sql tables match the dataframe columns - data type and order
         inspections_table = """CREATE TABLE IF NOT EXISTS inspections (
                                     id integer PRIMARY KEY,
+                                    inspection_id integer,
                                     license_ integer,
+                                    violation_count integer,
+                                    Management integer,
+                                    Hygienic_Practices integer,
+                                    Food_Preparation integer,
+                                    Pests_Rodents integer,
+                                    Utensils_Equipment integer,
+                                    Physical_Facilities integer,
+                                    Compliance integer,
+                                    inspection_type text,
+                                    risk text,
+                                    results text,
                                     aka_name text,
                                     latitude real,
                                     longitude real,
-                                    avg_violations real,
-                                    times_inspected integer
+                                    logistic_model_prediction integer,
+                                    random_forest_prediction integer
                                 );"""
 
         cur.execute(inspections_table)
