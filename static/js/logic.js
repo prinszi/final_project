@@ -68,15 +68,25 @@ d3.json(url).then((data) => {
 
   // loop through the json
   data.forEach(function(response){
-    const lat = response[1];
-    const long = response[2];
-    const name = response[0];
+    // const name = response[0];
     const stars = response[4];
-    const avg_violations = response[6];
-    const times_inspected = response[7];
-    const result = response[8];
-    const rf_model_prediction = response[9];
-    const logistic_model_prediction = response[10];
+    const violation_count = response[3];
+    const management_violations = response[4];
+    const hygienic_violations = response[5];
+    const Food_Preparation = response[6];
+    const Pests_Rodents = response[7];
+    const Utensils_Equipment = response[8];
+    const Phyisical_Facilities = response[9];
+    const Compliance = response[10];
+    const inspection_type = response[11];
+    const risk = response[12];
+    const result = response[13];
+    const name = response[14];
+    const lat = response[15];
+    const long = response[16];
+    const logistic_model_prediction = response[17];
+    const rf_model_prediction = response[18];
+    const binary_result = response[19];
 
     if (stars === 5){
       five_star ++;
@@ -96,25 +106,25 @@ d3.json(url).then((data) => {
       one_star ++;
     };
 
-    function createMarker(lat,long,name,stars,avg_violations,color,layer) {
+    function createMarker(lat,long,name,stars,violation_count,color,layer) {
       if (lat){
         L.circle([lat, long],{
           fillOpacity: 1,
           color: color,
           fillColor: color,
           radius: 5
-        }).addTo(layer).bindPopup(`<h2>Name: ${name}</h2><hr/><h2>Rating: ${stars}</br>Avg Violations: ${avg_violations}</br>Times Inspected: ${times_inspected}</h2><hr/>` );
+        }).addTo(layer).bindPopup(`<h2>Name: ${name}</h2><hr/><h2>Rating: ${stars}</br>Avg Violations: ${violation_count}</h2><hr/>` );
       }
     }
 
-    function createMarker_ml(lat,long,name,stars,avg_violations,color,layer,rf_model_prediction,logistic_model_prediction,result) {
+    function createMarker_ml(lat,long,name,stars,violation_count,color,layer,rf_model_prediction,logistic_model_prediction,result) {
       if (lat){
         L.circle([lat, long],{
           fillOpacity: 1,
           color: color,
           fillColor: color,
           radius: 5
-        }).addTo(layer).bindPopup(`<h2>Name: ${name}</h2><hr/><h2>Rating: ${stars}</br>Avg Violations: ${avg_violations}</br>Times Inspected: ${times_inspected}</h2><hr/>
+        }).addTo(layer).bindPopup(`<h2>Name: ${name}</h2><hr/><h2>Rating: ${stars}</br>Avg Violations: ${violation_count}</h2><hr/>
         </br>Inspection Result: ${result}</br>Random Forest prediction: ${rf_model_prediction}</br>Logistic regression prediction: ${logistic_model_prediction}` );
       }
     }
@@ -123,62 +133,64 @@ d3.json(url).then((data) => {
     // random forest classifier marker creation
     let color = '#73FA0A';
 
-    if (rf_model_prediction > 0 && rf_model_prediction == result){
+    // both got the prediction right (green)
+    if (binary_result < 3 && rf_model_prediction == binary_result && logistic_model_prediction == binary_result){
       color = '#00ff00';
-      createMarker_ml(lat,long,name,stars,avg_violations,color,randomForestLayer,rf_model_prediction,logistic_model_prediction,result);
+      createMarker_ml(lat,long,name,stars,violation_count,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
     }
-    else if (rf_model_prediction > 0 && rf_model_prediction != result){
+    // only the random forest predicted correctly (blue)
+    else if (binary_result < 3 && rf_model_prediction == binary_result && logistic_model_prediction != binary_result){
+      color = '#0000ff';
+      createMarker_ml(lat,long,name,stars,violation_count,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
+    }
+    // only the logistic model predicted correctly (silver)
+    else if (binary_result < 3 && logistic_model_prediction == binary_result && rf_model_prediction != binary_result){
+      color = '#aaa9ad';
+      createMarker_ml(lat,long,name,stars,violation_count,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
+    }
+    // neither predicted it correctly (red)
+    else if (binary_result < 3 && logistic_model_prediction != binary_result && rf_model_prediction != binary_result){
       color = '#ff0000';
-      createMarker_ml(lat,long,name,stars,avg_violations,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
-    }
-
-    // the logistic model marker creation
-    if (logistic_model_prediction > 0 && logistic_model_prediction == result){
-      color = '#00ff00';
-      createMarker_ml(lat,long,name,stars,avg_violations,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
-    }
-    else if (logistic_model_prediction > 0 && logistic_model_prediction != result){
-      color = '#ff0000';
-      createMarker_ml(lat,long,name,stars,avg_violations,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
+      createMarker_ml(lat,long,name,stars,violation_count,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
     }
     
     color = '#73FA0A';
 
-    if (avg_violations > 15){
+    if (violation_count > 15){
       fifteen_violations ++;
       color = '#FC4602';
-      createMarker(lat,long,name,stars,avg_violations,color,veryHighViolationsLayer);
+      createMarker(lat,long,name,stars,violation_count,color,veryHighViolationsLayer);
     }
-    else if (avg_violations > 10){
+    else if (violation_count > 10){
       ten_violations ++;
       color = '#e05702';
-      createMarker(lat,long,name,stars,avg_violations,color,highViolationsLayer);
+      createMarker(lat,long,name,stars,violation_count,color,highViolationsLayer);
     }
-    else if (avg_violations > 5){
+    else if (violation_count > 5){
       five_violations ++;
       color = '#e07102';
-      createMarker(lat,long,name,stars,avg_violations,color,avgViolationsLayer);
+      createMarker(lat,long,name,stars,violation_count,color,avgViolationsLayer);
     }
-    else if (avg_violations > 2.5){
+    else if (violation_count > 2.5){
       twohalf_violations ++;
       color = '#E6B51C';
-      createMarker(lat,long,name,stars,avg_violations,color,lowViolationsLayer);
+      createMarker(lat,long,name,stars,violation_count,color,lowViolationsLayer);
     }
-    else if (avg_violations > 0){
+    else if (violation_count > 0){
       one_violation ++;
       color = '#B5FA0A';
-      createMarker(lat,long,name,stars,avg_violations,color,veryLowViolationsLayer);
+      createMarker(lat,long,name,stars,violation_count,color,veryLowViolationsLayer);
     }
     else{
       zero_violations ++;
-      createMarker(lat,long,name,stars,avg_violations,color,noViolationsLayer);
+      createMarker(lat,long,name,stars,violation_count,color,noViolationsLayer);
     };
 
     // if (star_array.length == 100){
     //   return;
     // } else {
     star_array.push(stars);
-    violation_array.push(avg_violations);
+    violation_array.push(violation_count);
     // };
     
   });

@@ -66,7 +66,7 @@ def jsondata():
                                     Food_Preparation integer,
                                     Pests_Rodents integer,
                                     Utensils_Equipment integer,
-                                    Phyisical_Facilities integer,
+                                    Physical_Facilities integer,
                                     Compliance integer,
                                     inspection_type text,
                                     risk text,
@@ -75,7 +75,8 @@ def jsondata():
                                     latitude real,
                                     longitude real,
                                     logistic_model_prediction integer,
-                                    random_forest_prediction integer
+                                    random_forest_prediction integer,
+                                    binary_result integer
                                 );"""
 
         cur.execute(inspections_table)
