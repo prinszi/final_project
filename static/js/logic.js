@@ -96,7 +96,6 @@ d3.json(url).then((data) => {
       one_star ++;
     };
 
-
     function createMarker(lat,long,name,stars,avg_violations,color,layer) {
       if (lat){
         L.circle([lat, long],{
@@ -122,12 +121,13 @@ d3.json(url).then((data) => {
 
 // there will be different samples that were used in the train/test groups for each prediction model
     // random forest classifier marker creation
+    let color = '#73FA0A';
+
     if (rf_model_prediction > 0 && rf_model_prediction == result){
       color = '#00ff00';
       createMarker_ml(lat,long,name,stars,avg_violations,color,randomForestLayer,rf_model_prediction,logistic_model_prediction,result);
     }
     else if (rf_model_prediction > 0 && rf_model_prediction != result){
-      ten_violations ++;
       color = '#ff0000';
       createMarker_ml(lat,long,name,stars,avg_violations,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
     }
@@ -142,7 +142,7 @@ d3.json(url).then((data) => {
       createMarker_ml(lat,long,name,stars,avg_violations,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
     }
     
-    let color = '#73FA0A';
+    color = '#73FA0A';
 
     if (avg_violations > 15){
       fifteen_violations ++;
