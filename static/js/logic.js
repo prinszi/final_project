@@ -44,8 +44,7 @@ d3.json(url).then((data) => {
   const lowViolationsLayer = L.layerGroup();
   const veryLowViolationsLayer = L.layerGroup();
   const noViolationsLayer = L.layerGroup();
-  const randomForestLayer = L.layerGroup();
-  const logisticRegressionLayer = L.layerGroup();
+  const machineLearningLayer = L.layerGroup();
 
   var fifteen_violations = 0;
   var ten_violations = 0;
@@ -73,11 +72,11 @@ d3.json(url).then((data) => {
     const violation_count = response[3];
     const management_violations = response[4];
     const hygienic_violations = response[5];
-    const Food_Preparation = response[6];
-    const Pests_Rodents = response[7];
-    const Utensils_Equipment = response[8];
-    const Phyisical_Facilities = response[9];
-    const Compliance = response[10];
+    const food_prep_violations = response[6];
+    const pests_rodents_violtations = response[7];
+    const utensils_equipment_violations = response[8];
+    const phyisical_facilities_violations = response[9];
+    const compliance_violations = response[10];
     const inspection_type = response[11];
     const risk = response[12];
     const result = response[13];
@@ -106,7 +105,7 @@ d3.json(url).then((data) => {
       one_star ++;
     };
 
-    function createMarker(lat,long,name,stars,violation_count,color,layer) {
+    function createMarker(color, layer) {
       if (lat){
         L.circle([lat, long],{
           fillOpacity: 1,
@@ -116,16 +115,24 @@ d3.json(url).then((data) => {
         }).addTo(layer).bindPopup(`<h2>Name: ${name}</h2><hr/><h2>Rating: ${stars}</br>Avg Violations: ${violation_count}</h2><hr/>` );
       }
     }
-
-    function createMarker_ml(lat,long,name,stars,violation_count,color,layer,rf_model_prediction,logistic_model_prediction,result) {
+    
+    function createMarker_ml(layer) {
       if (lat){
         L.circle([lat, long],{
           fillOpacity: 1,
           color: color,
           fillColor: color,
           radius: 5
-        }).addTo(layer).bindPopup(`<h2>Name: ${name}</h2><hr/><h2>Rating: ${stars}</br>Avg Violations: ${violation_count}</h2><hr/>
-        </br>Inspection Result: ${result}</br>Random Forest prediction: ${rf_model_prediction}</br>Logistic regression prediction: ${logistic_model_prediction}` );
+        }).addTo(layer).bindPopup(`<h2>Name: ${name}</h2><hr/><h2>Stars: ${stars}</br>Number of violations: ${violation_count}</h2><hr/>
+        <h3>Inspection result: ${result}</br>Random Forest prediction: ${rf_model_prediction}</br>Logistic regression prediction: ${logistic_model_prediction}<hr/>
+        <strong>Violations by type</strong>
+        </br>Management: ${management_violations}
+        </br>Hygiene: ${hygienic_violations}
+        </br>Food prep: ${food_prep_violations}
+        </br>Pests/rodents: ${pests_rodents_violtations}
+        </br>Utensils: ${utensils_equipment_violations}
+        </br>Facility: ${phyisical_facilities_violations}
+        </br>Compliance: ${compliance_violations} </h3>`);
       }
     }
 
@@ -135,23 +142,23 @@ d3.json(url).then((data) => {
 
     // both got the prediction right (green)
     if (binary_result < 3 && rf_model_prediction == binary_result && logistic_model_prediction == binary_result){
-      color = '#00ff00';
-      createMarker_ml(lat,long,name,stars,violation_count,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
+      color = '#7fff00';
+      createMarker_ml(machineLearningLayer);
     }
-    // only the random forest predicted correctly (blue)
+    // only the random forest predicted correctly (pink)
     else if (binary_result < 3 && rf_model_prediction == binary_result && logistic_model_prediction != binary_result){
-      color = '#0000ff';
-      createMarker_ml(lat,long,name,stars,violation_count,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
+      color = '#FF69B4';
+      createMarker_ml(machineLearningLayer);
     }
-    // only the logistic model predicted correctly (silver)
+    // only the logistic model predicted correctly (blue)
     else if (binary_result < 3 && logistic_model_prediction == binary_result && rf_model_prediction != binary_result){
-      color = '#aaa9ad';
-      createMarker_ml(lat,long,name,stars,violation_count,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
+      color = '#00ffff';
+      createMarker_ml(machineLearningLayer);
     }
     // neither predicted it correctly (red)
     else if (binary_result < 3 && logistic_model_prediction != binary_result && rf_model_prediction != binary_result){
       color = '#ff0000';
-      createMarker_ml(lat,long,name,stars,violation_count,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
+      createMarker_ml(machineLearningLayer);
     }
     
     color = '#73FA0A';
@@ -159,31 +166,31 @@ d3.json(url).then((data) => {
     if (violation_count > 15){
       fifteen_violations ++;
       color = '#FC4602';
-      createMarker(lat,long,name,stars,violation_count,color,veryHighViolationsLayer);
+      createMarker(color, veryHighViolationsLayer);
     }
     else if (violation_count > 10){
       ten_violations ++;
       color = '#e05702';
-      createMarker(lat,long,name,stars,violation_count,color,highViolationsLayer);
+      createMarker(color, highViolationsLayer);
     }
     else if (violation_count > 5){
       five_violations ++;
       color = '#e07102';
-      createMarker(lat,long,name,stars,violation_count,color,avgViolationsLayer);
+      createMarker(color, avgViolationsLayer);
     }
     else if (violation_count > 2.5){
       twohalf_violations ++;
       color = '#E6B51C';
-      createMarker(lat,long,name,stars,violation_count,color,lowViolationsLayer);
+      createMarker(color,lowViolationsLayer);
     }
     else if (violation_count > 0){
       one_violation ++;
       color = '#B5FA0A';
-      createMarker(lat,long,name,stars,violation_count,color,veryLowViolationsLayer);
+      createMarker(color,veryLowViolationsLayer);
     }
     else{
       zero_violations ++;
-      createMarker(lat,long,name,stars,violation_count,color,noViolationsLayer);
+      createMarker(color,noViolationsLayer);
     };
 
     // if (star_array.length == 100){
@@ -216,15 +223,14 @@ d3.json(url).then((data) => {
     Low: lowViolationsLayer,
     Minimal: veryLowViolationsLayer,
     None: noViolationsLayer,
-    Random_forest: randomForestLayer,
-    Logistic_regresssion: logisticRegressionLayer
+    Machine_learning: machineLearningLayer
   };
 
   const myMap = L.map("map", {
     center: [41.8881, -87.6298],
     zoom: 13,
     // default when you load the page
-    layers: [darkmap, lowViolationsLayer]
+    layers: [darkmap, machineLearningLayer]
   });
 
   // create a legend/control panel
