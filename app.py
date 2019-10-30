@@ -38,7 +38,7 @@ def jsondata():
 
     # calls to functions to create the dataframes
     google_reviews_df = pd.read_csv("google_reviews.csv")
-    chi_inspections_df = pd.read_csv("model_results_slim.csv")
+    chi_inspections_df = pd.read_csv("model_results_full.csv")
 
     # create a database connection
     conn = create_connection(database)
@@ -75,7 +75,8 @@ def jsondata():
                                     latitude real,
                                     longitude real,
                                     logistic_model_prediction integer,
-                                    random_forest_prediction integer
+                                    random_forest_prediction integer,
+                                    binary_result integer
                                 );"""
 
         cur.execute(inspections_table)
@@ -111,8 +112,8 @@ def jsondata():
         Inspections = Base.classes.inspections
 
         # merge tables
-        inner_join = """select aka_name, latitude, longitude, license_,
-                    reviews.Average_of_Ratings, reviews.Data_license, avg_violations, times_inspected, binary_results,model_prediction,logistic_model_prediction
+        inner_join = """select *,
+                    reviews.Average_of_Ratings, reviews.Data_license
                     from inspections
                     join reviews on Data_license = license_;
                     """
@@ -131,37 +132,6 @@ def jsondata():
             data["results"].append(row)
 
         return jsonify(data)
-
-
-#################################################
-# Flask Routes
-#################################################
-
-# @app.route("/")
-# def welcome():
-#     session = Session(engine)
-
-#     # Query all 
-#     session = Session(engine)
-#     results = session.query(Reviews).all()
-#         # results2 = session.query(inspections.name, inspections.license_number).all()
-
-#     # example on what you can do with queries. There's also .filter
-#     # """
-#     # session.query(Invoices.BillingPostalCode, func.sum(Items.UnitPrice * Items.Quantity)).\
-#     # filter(Invoices.InvoiceId == Items.InvoiceId).\
-#     # filter(Invoices.BillingCountry == 'USA').\
-#     # group_by(Invoices.BillingPostalCode).\
-#     # order_by(func.sum(Items.UnitPrice * Items.Quantity).desc()).all()
-#     # """
-
-#     session.close()
-#     all_names = list(np.ravel(results))
-#     # Convert list of tuples into normal list
-#     # all_names = list(np.ravel(results))
-
-#     print(results)
-#     return (all_names)
 
 
 if __name__ == '__main__':

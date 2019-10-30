@@ -44,8 +44,7 @@ d3.json(url).then((data) => {
   const lowViolationsLayer = L.layerGroup();
   const veryLowViolationsLayer = L.layerGroup();
   const noViolationsLayer = L.layerGroup();
-  const randomForestLayer = L.layerGroup();
-  const logisticRegressionLayer = L.layerGroup();
+  const machineLearningLayer = L.layerGroup();
 
   var fifteen_violations = 0;
   var ten_violations = 0;
@@ -68,15 +67,25 @@ d3.json(url).then((data) => {
 
   // loop through the json
   data.forEach(function(response){
-    const lat = response[1];
-    const long = response[2];
-    const name = response[0];
+    // const name = response[0];
     const stars = response[4];
-    const avg_violations = response[6];
-    const times_inspected = response[7];
-    const result = response[8];
-    const rf_model_prediction = response[9];
-    const logistic_model_prediction = response[10];
+    const violation_count = response[3];
+    const management_violations = response[4];
+    const hygienic_violations = response[5];
+    const food_prep_violations = response[6];
+    const pests_rodents_violtations = response[7];
+    const utensils_equipment_violations = response[8];
+    const phyisical_facilities_violations = response[9];
+    const compliance_violations = response[10];
+    const inspection_type = response[11];
+    const risk = response[12];
+    const result = response[13];
+    const name = response[14];
+    const lat = response[15];
+    const long = response[16];
+    const logistic_model_prediction = response[17];
+    const rf_model_prediction = response[18];
+    const binary_result = response[19];
 
     if (stars === 5){
       five_star ++;
@@ -96,26 +105,34 @@ d3.json(url).then((data) => {
       one_star ++;
     };
 
-    function createMarker(lat,long,name,stars,avg_violations,color,layer) {
+    function createMarker(color, layer) {
       if (lat){
         L.circle([lat, long],{
           fillOpacity: 1,
           color: color,
           fillColor: color,
           radius: 5
-        }).addTo(layer).bindPopup(`<h2>Name: ${name}</h2><hr/><h2>Rating: ${stars}</br>Avg Violations: ${avg_violations}</br>Times Inspected: ${times_inspected}</h2><hr/>` );
+        }).addTo(layer).bindPopup(`<h2>Name: ${name}</h2><hr/><h2>Rating: ${stars}</br>Avg Violations: ${violation_count}</h2><hr/>` );
       }
     }
-
-    function createMarker_ml(lat,long,name,stars,avg_violations,color,layer,rf_model_prediction,logistic_model_prediction,result) {
+    
+    function createMarker_ml(layer) {
       if (lat){
         L.circle([lat, long],{
           fillOpacity: 1,
           color: color,
           fillColor: color,
           radius: 5
-        }).addTo(layer).bindPopup(`<h2>Name: ${name}</h2><hr/><h2>Rating: ${stars}</br>Avg Violations: ${avg_violations}</br>Times Inspected: ${times_inspected}</h2><hr/>
-        </br>Inspection Result: ${result}</br>Random Forest prediction: ${rf_model_prediction}</br>Logistic regression prediction: ${logistic_model_prediction}` );
+        }).addTo(layer).bindPopup(`<h2>Name: ${name}</h2><hr/><h2>Stars: ${stars}</br>Number of violations: ${violation_count}</h2><hr/>
+        <h3>Inspection result: ${result}</br>Random Forest prediction: ${rf_model_prediction}</br>Logistic regression prediction: ${logistic_model_prediction}<hr/>
+        <strong>Violations by type</strong>
+        </br>Management: ${management_violations}
+        </br>Hygiene: ${hygienic_violations}
+        </br>Food prep: ${food_prep_violations}
+        </br>Pests/rodents: ${pests_rodents_violtations}
+        </br>Utensils: ${utensils_equipment_violations}
+        </br>Facility: ${phyisical_facilities_violations}
+        </br>Compliance: ${compliance_violations} </h3>`);
       }
     }
 
@@ -123,62 +140,64 @@ d3.json(url).then((data) => {
     // random forest classifier marker creation
     let color = '#73FA0A';
 
-    if (rf_model_prediction > 0 && rf_model_prediction == result){
-      color = '#00ff00';
-      createMarker_ml(lat,long,name,stars,avg_violations,color,randomForestLayer,rf_model_prediction,logistic_model_prediction,result);
+    // both got the prediction right (green)
+    if (binary_result < 3 && rf_model_prediction == binary_result && logistic_model_prediction == binary_result){
+      color = '#7fff00';
+      createMarker_ml(machineLearningLayer);
     }
-    else if (rf_model_prediction > 0 && rf_model_prediction != result){
+    // only the random forest predicted correctly (pink)
+    else if (binary_result < 3 && rf_model_prediction == binary_result && logistic_model_prediction != binary_result){
+      color = '#FF69B4';
+      createMarker_ml(machineLearningLayer);
+    }
+    // only the logistic model predicted correctly (blue)
+    else if (binary_result < 3 && logistic_model_prediction == binary_result && rf_model_prediction != binary_result){
+      color = '#00ffff';
+      createMarker_ml(machineLearningLayer);
+    }
+    // neither predicted it correctly (red)
+    else if (binary_result < 3 && logistic_model_prediction != binary_result && rf_model_prediction != binary_result){
       color = '#ff0000';
-      createMarker_ml(lat,long,name,stars,avg_violations,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
-    }
-
-    // the logistic model marker creation
-    if (logistic_model_prediction > 0 && logistic_model_prediction == result){
-      color = '#00ff00';
-      createMarker_ml(lat,long,name,stars,avg_violations,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
-    }
-    else if (logistic_model_prediction > 0 && logistic_model_prediction != result){
-      color = '#ff0000';
-      createMarker_ml(lat,long,name,stars,avg_violations,color,logisticRegressionLayer,rf_model_prediction,logistic_model_prediction,result);
+      createMarker_ml(machineLearningLayer);
     }
     
     color = '#73FA0A';
 
-    if (avg_violations > 15){
+    if (violation_count > 15){
       fifteen_violations ++;
       color = '#FC4602';
-      createMarker(lat,long,name,stars,avg_violations,color,veryHighViolationsLayer);
+      createMarker(color, veryHighViolationsLayer);
     }
-    else if (avg_violations > 10){
+    else if (violation_count > 10){
       ten_violations ++;
       color = '#e05702';
-      createMarker(lat,long,name,stars,avg_violations,color,highViolationsLayer);
+      createMarker(color, highViolationsLayer);
     }
-    else if (avg_violations > 5){
+    else if (violation_count > 5){
       five_violations ++;
       color = '#e07102';
-      createMarker(lat,long,name,stars,avg_violations,color,avgViolationsLayer);
+      createMarker(color, avgViolationsLayer);
     }
-    else if (avg_violations > 2.5){
+    else if (violation_count > 2.5){
       twohalf_violations ++;
       color = '#E6B51C';
-      createMarker(lat,long,name,stars,avg_violations,color,lowViolationsLayer);
+      createMarker(color,lowViolationsLayer);
     }
-    else if (avg_violations > 0){
+    else if (violation_count > 0){
       one_violation ++;
       color = '#B5FA0A';
-      createMarker(lat,long,name,stars,avg_violations,color,veryLowViolationsLayer);
+      createMarker(color,veryLowViolationsLayer);
     }
     else{
       zero_violations ++;
-      createMarker(lat,long,name,stars,avg_violations,color,noViolationsLayer);
+      createMarker(color,noViolationsLayer);
     };
 
     // if (star_array.length == 100){
     //   return;
     // } else {
     star_array.push(stars);
-    violation_array.push(avg_violations);
+    violation_array.push(violation_count);
     // };
     
   });
@@ -204,15 +223,14 @@ d3.json(url).then((data) => {
     Low: lowViolationsLayer,
     Minimal: veryLowViolationsLayer,
     None: noViolationsLayer,
-    Random_forest: randomForestLayer,
-    Logistic_regresssion: logisticRegressionLayer
+    Machine_learning: machineLearningLayer
   };
 
   const myMap = L.map("map", {
     center: [41.8881, -87.6298],
     zoom: 13,
     // default when you load the page
-    layers: [darkmap, lowViolationsLayer]
+    layers: [darkmap, machineLearningLayer]
   });
 
   // create a legend/control panel
