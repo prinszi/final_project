@@ -21,7 +21,10 @@ p {
   padding: 1rem 0;
 }
 
-			
+#wordcloud {
+  max-width: 100%;
+}
+
 .card {
   border: 0rem;
   border-radius: 0rem;
